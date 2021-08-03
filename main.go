@@ -88,7 +88,7 @@ func main() {
 	for _, msg := range msgs {
 		// Figure out which subsystem the line belongs to.
 		subsystem := color.New(color.Bold).SprintFunc()("MISC")
-		if strings.HasPrefix(msg.Caller, "volumemanager/") || strings.HasPrefix(msg.Caller, "populator/") || strings.HasPrefix(msg.Caller, "reconciler/") {
+		if strings.HasPrefix(msg.Caller, "volumemanager/") || strings.HasPrefix(msg.Caller, "populator/") || strings.HasPrefix(msg.Caller, "reconciler/") || strings.HasPrefix(msg.Caller, "operationexecutor/") {
 			subsystem = color.New(color.Bold, color.FgGreen).SprintFunc()("VOLUME")
 		} else if strings.HasPrefix(msg.Caller, "kuberuntime/") || msg.Message == "Generating pod status" {
 			subsystem = color.New(color.Bold, color.FgBlue).SprintFunc()("SYNCPOD")
@@ -100,6 +100,13 @@ func main() {
 			subsystem = color.New(color.Bold, color.FgHiGreen).SprintFunc()("MOUNT")
 		}
 
-		fmt.Printf("%d\t%s\t%s\n", int(msg.Timestamp-start), subsystem, msg.Message)
+		fmt.Printf("%d\t%s\t%s\n", int(msg.Timestamp-start), subsystem, truncate(msg.Message, 90))
 	}
+}
+
+func truncate(msg string, max int) string {
+	if len(msg) < max {
+		return msg
+	}
+	return msg[:max-3] + "..."
 }
