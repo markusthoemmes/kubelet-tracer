@@ -19,3 +19,5 @@
 
 Internal retry: 100ms (desired state of the world populator)
 External check: 300ms (WaitForAttachAndMount)
+
+Mount operations etc. are executed in somewhat like a "thread pool", which is polled on a 100ms timer.
