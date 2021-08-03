@@ -86,6 +86,7 @@ func main() {
 
 	fmt.Println()
 	fmt.Println("Logs:")
+	fmt.Println("ELAPSED\tDIFF\tSYSTEM\tMESSAGE")
 
 	start := msgs[0].Timestamp
 	for i, msg := range msgs {
