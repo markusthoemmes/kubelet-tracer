@@ -77,15 +77,18 @@ func main() {
 	}
 
 	if len(msgs) == 0 {
-		log.Fatalln("No messages found for pod " + pod)
+		log.Fatalln("No messages found")
 	}
 
 	sort.Slice(msgs, func(i, j int) bool {
 		return msgs[i].Timestamp < msgs[j].Timestamp
 	})
 
+	fmt.Println()
+	fmt.Println("Logs:")
+
 	start := msgs[0].Timestamp
-	for _, msg := range msgs {
+	for i, msg := range msgs {
 		// Figure out which subsystem the line belongs to.
 		subsystem := color.New(color.Bold).SprintFunc()("MISC")
 		if strings.HasPrefix(msg.Caller, "volumemanager/") || strings.HasPrefix(msg.Caller, "populator/") || strings.HasPrefix(msg.Caller, "reconciler/") || strings.HasPrefix(msg.Caller, "operationexecutor/") {
@@ -100,7 +103,32 @@ func main() {
 			subsystem = color.New(color.Bold, color.FgHiGreen).SprintFunc()("MOUNT")
 		}
 
-		fmt.Printf("%d\t%s\t%s\n", int(msg.Timestamp-start), subsystem, truncate(msg.Message, 90))
+		diff := 0
+		if i > 0 {
+			diff = int(msg.Timestamp - msgs[i-1].Timestamp)
+		}
+
+		diffStr := fmt.Sprint(diff)
+		if diff > 10 {
+			diffStr = color.New(color.FgYellow).SprintFunc()(diff)
+		}
+		if diff > 30 {
+			diffStr = color.New(color.Bold, color.FgYellow).SprintFunc()(diff)
+		}
+		if diff > 50 {
+			diffStr = color.New(color.FgHiYellow).SprintFunc()(diff)
+		}
+		if diff > 100 {
+			diffStr = color.New(color.Bold, color.FgHiYellow).SprintFunc()(diff)
+		}
+		if diff > 300 {
+			diffStr = color.New(color.FgRed).SprintFunc()(diff)
+		}
+		if diff > 500 {
+			diffStr = color.New(color.Bold, color.FgRed).SprintFunc()(diff)
+		}
+
+		fmt.Printf("%d\t%s\t%s\t%s\n", int(msg.Timestamp-start), diffStr, subsystem, truncate(msg.Message, 90))
 	}
 }
 
