@@ -9,6 +9,8 @@ import (
 	"os"
 	"sort"
 	"strings"
+
+	"github.com/fatih/color"
 )
 
 const (
@@ -84,6 +86,20 @@ func main() {
 
 	start := msgs[0].Timestamp
 	for _, msg := range msgs {
-		fmt.Printf("%d\t%s\t%s\n", int(msg.Timestamp-start), msg.Caller, msg.Message)
+		// Figure out which subsystem the line belongs to.
+		subsystem := color.New(color.Bold).SprintFunc()("MISC")
+		if strings.HasPrefix(msg.Caller, "volumemanager/") || strings.HasPrefix(msg.Caller, "populator/") || strings.HasPrefix(msg.Caller, "reconciler/") {
+			subsystem = color.New(color.Bold, color.FgGreen).SprintFunc()("VOLUME")
+		} else if strings.HasPrefix(msg.Caller, "kuberuntime/") || msg.Message == "Generating pod status" {
+			subsystem = color.New(color.Bold, color.FgBlue).SprintFunc()("SYNCPOD")
+		} else if strings.HasPrefix(msg.Caller, "pleg/") {
+			subsystem = color.New(color.Bold, color.FgRed).SprintFunc()("PLEG")
+		} else if strings.HasPrefix(msg.Caller, "status/") {
+			subsystem = color.New(color.Bold, color.FgHiBlue).SprintFunc()("STATUS")
+		} else if strings.HasPrefix(msg.Caller, "kubelet/kubelet_pods") {
+			subsystem = color.New(color.Bold, color.FgHiGreen).SprintFunc()("MOUNT")
+		}
+
+		fmt.Printf("%d\t%s\t%s\n", int(msg.Timestamp-start), subsystem, msg.Message)
 	}
 }
