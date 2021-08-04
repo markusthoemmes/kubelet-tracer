@@ -102,6 +102,8 @@ func main() {
 			subsystem = color.New(color.Bold, color.FgHiBlue).SprintFunc()("STATUS")
 		} else if strings.HasPrefix(msg.Caller, "kubelet/kubelet_pods") {
 			subsystem = color.New(color.Bold, color.FgHiGreen).SprintFunc()("MOUNT")
+		} else if strings.HasPrefix(msg.Caller, "prober") {
+			subsystem = color.New(color.Bold, color.FgYellow).SprintFunc()("PROBE")
 		}
 
 		diff := 0
