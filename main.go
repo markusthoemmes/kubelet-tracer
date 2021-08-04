@@ -65,14 +65,11 @@ func main() {
 			continue
 		}
 
-		if msg.Pods != nil {
-			for i := range msg.Pods {
-				if msg.Pods[i] == pod {
-					msgs = append(msgs, msg)
-					break
-				}
+		for _, podName := range msg.Pods {
+			if podName == pod {
+				msgs = append(msgs, msg)
+				break
 			}
-			continue
 		}
 	}
 
