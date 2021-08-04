@@ -15,6 +15,7 @@ import (
 
 const (
 	msgContainerKilled = "Killing container with a grace period"
+	plegRelist         = "GenericPLEG: Relisting"
 )
 
 type message struct {
@@ -40,6 +41,7 @@ func main() {
 	fmt.Println("Pod: " + pod)
 
 	var msgs []message
+	var seenFirstPodMessage bool
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -49,24 +51,27 @@ func main() {
 		}
 		line = line[start:]
 
-		if !strings.Contains(line, pod) {
-			continue
-		}
-
 		var msg message
 		json.Unmarshal([]byte(line), &msg)
+
+		if seenFirstPodMessage && msg.Message == plegRelist {
+			msgs = append(msgs, msg)
+			continue
+		}
 
 		if msg.Pod == pod {
 			if stopAfterDeletion && msg.Message == msgContainerKilled {
 				break
 			}
 
+			seenFirstPodMessage = true
 			msgs = append(msgs, msg)
 			continue
 		}
 
 		for _, podName := range msg.Pods {
 			if podName == pod {
+				seenFirstPodMessage = true
 				msgs = append(msgs, msg)
 				break
 			}
