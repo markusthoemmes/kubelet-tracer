@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	msgContainerKilled = "Killing container with a grace period"
+	msgContainerKilled = "Pod is marked for graceful deletion, begin teardown"
 	plegRelist         = "GenericPLEG: Relisting"
 )
 
@@ -96,7 +96,7 @@ func main() {
 		subsystem := color.New(color.Bold).SprintFunc()("MISC")
 		if strings.HasPrefix(msg.Caller, "volumemanager/") || strings.HasPrefix(msg.Caller, "populator/") || strings.HasPrefix(msg.Caller, "reconciler/") || strings.HasPrefix(msg.Caller, "operationexecutor/") {
 			subsystem = color.New(color.Bold, color.FgGreen).SprintFunc()("VOLUME")
-		} else if strings.HasPrefix(msg.Caller, "kuberuntime/") || msg.Message == "Generating pod status" {
+		} else if strings.HasPrefix(msg.Caller, "kuberuntime/") || msg.Message == "syncPod enter" || msg.Message == "syncPod exit" {
 			subsystem = color.New(color.Bold, color.FgBlue).SprintFunc()("SYNCPOD")
 		} else if strings.HasPrefix(msg.Caller, "pleg/") {
 			subsystem = color.New(color.Bold, color.FgRed).SprintFunc()("PLEG")
